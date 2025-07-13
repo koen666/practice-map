@@ -3,6 +3,11 @@ import MainMap from '../src/components/MainMap.vue'
 
 const routes = [
   {
+    path:'/',
+    name: 'Home',
+    component:MainMap
+  },
+  {
     path: '/map',
     name: 'Map',
     component: MainMap
