@@ -4,9 +4,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
-// https://vite.dev/config/
 export default defineConfig({
-  base: '/practice-map/', // Change this to your repository name or '/' for user/organization site
+  base: '/practice-map/',
   plugins: [
     vue(),
     vueDevTools(),
