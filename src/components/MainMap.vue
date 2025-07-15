@@ -1,49 +1,56 @@
 <template>
-  <div class="map-container">
-    <l-map
-      ref="map"
-      :zoom="zoom"
-      :center="center"
-      @ready="onMapReady"
-    >
-      <l-tile-layer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        layer-type="base"
-        name="OpenStreetMap"
-      />
-    </l-map>
-  </div>
+  <div id="map-container" class="map-container"></div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
-import 'leaflet/dist/leaflet.css'
-import L from 'leaflet'
+import { onMounted } from 'vue';
 
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: new URL('leaflet/dist/images/marker-icon-2x.png', import.meta.url).href,
-  iconUrl: new URL('leaflet/dist/images/marker-icon.png', import.meta.url).href,
-  shadowUrl: new URL('leaflet/dist/images/marker-shadow.png', import.meta.url).href,
-})
+const api_key = '6db502aba745f8fb2cc31ea659ecc3ea';
 
-const zoom = ref(13)
-const center = ref([31.2304, 121.4737])
+const initMap = () => {
+  const map = new AMap.Map('map-container', {
+    zoom: 10,
+    center: [116.397428, 39.90923],
+    viewMode: '2D',
+  });
 
-function onMapReady() {
-  console.log('Map is ready')
-}
+  const marker = new AMap.Marker({
+    position: [116.397428, 39.90923],
+    title: '天安门',
+  });
+  map.add(marker);
+};
+
+const loadAMapScript = () => {
+  return new Promise((resolve, reject) => {
+    if (window.AMap) {
+      resolve(); 
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = `https://webapi.amap.com/maps?v=2.0&key=${api_key}`;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+};
+
+onMounted(async () => {
+  try {
+    await loadAMapScript(); 
+    initMap();
+  } catch (error) {
+    console.error('加载高德地图失败:', error);
+  }
+});
 </script>
 
 <style scoped>
-.map-container {
-  height: 100vh;
-  width: 100vw;
-}
 
-.leaflet-container {
-  height: 100%;
-  width: 100%;
+.map-container 
+{
+  width: 200vh;
+  height: 100vh;
+  position: relative;
 }
 </style>
