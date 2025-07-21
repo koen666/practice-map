@@ -3,10 +3,10 @@
 </template>
 
 <script setup>
-import { DivOverlay } from 'leaflet';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const api_key = '6db502aba745f8fb2cc31ea659ecc3ea';
+const infoWindow = ref(null);
 
 const initMap = () => {
   const map = new AMap.Map('map-container', {
@@ -22,13 +22,51 @@ const initMap = () => {
     chengdu: [104.0665, 30.6595]  // 成都人民公园
   };
 
-  const markers = [
-    new AMap.Marker({ position: points.leshan, title: '乐山文庙' }),
+
+  const createInfoWindowContent = () => {
+    return `
+      <div style="width: 800px; height: 600px; padding: 10px;">
+        <h3 style="margin-top: 0; margin-bottom: 10px;">乐山文庙3D建模</h3>
+        <iframe 
+          src="https://www.get3d.cn/share?shareKey=rs8Qe50zCHfl388OGzLb0BdM&password=2" 
+          width="100%" 
+          height="90%" 
+          frameborder="0" 
+          allowfullscreen
+          style="border: none;">
+        </iframe>
+      </div>
+    `;
+  };
+
+
+  const leshanMarker = new AMap.Marker({
+    position: points.leshan,
+    title: '乐山文庙'
+  });
+  
+  leshanMarker.on('click', () => {
+    if (infoWindow.value) {
+      infoWindow.value.close();
+    }
+    
+    infoWindow.value = new AMap.InfoWindow({
+      content: createInfoWindowContent(),
+      offset: new AMap.Pixel(0, -30),
+      size: new AMap.Size(800, 600)
+    });
+    
+    infoWindow.value.open(map, points.leshan);
+  });
+
+  const otherMarkers = [
     new AMap.Marker({ position: points.xichang, title: '西昌卫星发射基地' }),
     new AMap.Marker({ position: points.emei, title: '峨眉山(途径点)' }),
     new AMap.Marker({ position: points.chengdu, title: '成都人民公园' })
   ];
-  map.add(markers);
+
+
+  map.add([leshanMarker, ...otherMarkers]);
 
   const polyline = new AMap.Polyline({
     path: [points.leshan, points.xichang, points.emei, points.chengdu],
@@ -41,12 +79,11 @@ const initMap = () => {
     strokeStyle: "dashed",
     lineJoin: 'round',
     lineCap: 'round',
-    showDir:true,
-    dirColor:'#ff0000',
+    showDir: true,
+    dirColor: '#ff0000',
     dirSize: 6
   });
   map.add(polyline);  
-
 
   map.setFitView();
 };
@@ -80,5 +117,12 @@ onMounted(async () => {
   width: 100vw;
   height: 100vh;
   position: relative;
+}
+
+
+:deep(.amap-info-content) {
+  padding: 0 !important;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 </style>
