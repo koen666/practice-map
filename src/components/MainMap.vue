@@ -2,34 +2,39 @@
   <div class="main-container">
     <header class="main-header">
       <div class="content-area">
-        
-        <!-- 步数统计视图的饼状图容器 -->
+        <!-- 根据不同视图显示内容 -->
         <div v-if="currentView === 'steps'" class="charts-container">
+          <!-- 步数统计视图的饼状图容器 -->
           <div v-for="(day, index) in stepsData" :key="index" class="chart-item">
             <h3>第{{ index + 1 }}天</h3>
             <div class="chart-wrapper" :id="'chart-' + index"></div>
+          </div>
+        </div>
+        
+        <!-- 行程管理 -->
+        <div v-if="currentView === 'schedule'" class="schedule-container">
+          <div class="schedule-list">
+            <div v-for="(item, index) in schedules" :key="index" class="schedule-item">
+              <span class="date">{{ item.date }}</span>
+              <span class="location">{{ item.location }}</span>
+              <button @click="deleteSchedule(index)" class="delete-btn">×</button>
+            </div>
+          </div>
+          <div class="schedule-form">
+            <input v-model="newSchedule.date" placeholder="日期（例：2025-07-07）">
+            <input v-model="newSchedule.location" placeholder="地点">
+            <button @click="addSchedule">添加行程</button>
           </div>
         </div>
       </div>
       <div class="icon-bar">
         <button @click="switchView('steps')" :class="{active: currentView === 'steps'}" aria-label="步数统计">
           <svg class="icon" viewBox="0 0 24 24">
-            <!-- 头部（圆形填充，与其他图标视觉统一） -->
             <circle cx="12" cy="6" r="2.5" fill="currentColor"/>
-            
-            <!-- 身体（单线条躯干） -->
             <path d="M12 8.5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            
-            <!-- 左腿（前伸姿态，符合走路动态） -->
             <path d="M12 13.5l-3 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            
-            <!-- 右腿（后屈姿态，平衡肢体） -->
             <path d="M12 13.5l3 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            
-            <!-- 左臂（后摆，与右腿协调） -->
             <path d="M12 10l-3.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            
-            <!-- 右臂（前摆，与左腿协调） -->
             <path d="M12 10l3.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </button>
@@ -41,6 +46,7 @@
         </button>
       </div>
     </header>
+
     <button 
       class="collapse-btn"
       @click="isHeaderCollapsed = !isHeaderCollapsed"
@@ -61,22 +67,43 @@
 import { computed, onMounted, ref ,watch} from 'vue';
 import * as echarts from 'echarts';
 const currentView = ref('steps');
-const isHeaderCollapsed = ref(false);
+const  isHeaderCollapsed = ref(false);
 const headerHeight = computed(() => isHeaderCollapsed.value ? '60px' : '35vh');
 
+const schedules = ref([
+  { date: '2025-07-07', location: '乐山' },
+  { date: '2025-07-09', location: '西昌' },
+  { date: '2025-07-11', location: '成都' }
+]);
+
+const newSchedule = ref({
+  date: '',
+  location: ''
+});
+
 const stepsData = [
-  { day: '第一天', 成员A: 12850, 成员B: 13520, 成员C: 11980 },
-  { day: '第二天', 成员A: 15630, 成员B: 14980, 成员C: 16210 },
-  { day: '第三天', 成员A: 13270, 成员B: 12890, 成员C: 14050 },
-  { day: '第四天', 成员A: 14560, 成员B: 15120, 成员C: 13890 }
+  { day: '第一天', 何柯: 12850, 徐晨帆: 13520, 杨健淳: 11980 },
+  { day: '第二天', 何柯: 15630, 徐晨帆: 14980, 杨健淳: 16210 },
+  { day: '第三天', 何柯: 13270, 徐晨帆: 12890, 杨健淳: 14050 },
+  { day: '第四天', 何柯: 14560, 徐晨帆: 15120, 杨健淳: 13890 }
 ];
 
 const switchView = (view) => {
   currentView.value = view;
 };
 
+const addSchedule = () => {
+  if (newSchedule.value.date && newSchedule.value.location) {
+    schedules.value.push({...newSchedule.value});
+    newSchedule.value = { date: '', location: '' };
+  }
+};
+
+const deleteSchedule = (index) => {
+  schedules.value.splice(index, 1);
+};
+
 const initCharts = () => {
-  // 清除已有图表实例
   stepsData.forEach((_, index) => {
     const chartDom = document.getElementById(`chart-${index}`);
     if (chartDom) {
@@ -84,21 +111,18 @@ const initCharts = () => {
     }
   });
 
-  // 为每天数据创建饼图
   stepsData.forEach((dayData, index) => {
     const chartDom = document.getElementById(`chart-${index}`);
     if (!chartDom) return;
     
     const chart = echarts.init(chartDom);
     
-    // 处理数据格式
     const data = [
-      { name: '成员A', value: dayData.成员A },
-      { name: '成员B', value: dayData.成员B },
-      { name: '成员C', value: dayData.成员C }
+      { name: '何柯', value: dayData.何柯 },
+      { name: '徐晨帆', value: dayData.徐晨帆 },
+      { name: '杨健淳', value: dayData.杨健淳 }
     ];
     
-    // 配置项
     const option = {
       tooltip: {
         trigger: 'item',
@@ -115,7 +139,7 @@ const initCharts = () => {
         {
           name: '步数分布',
           type: 'pie',
-          radius: ['40%', '70%'], // 环形饼图
+          radius: ['40%', '70%'], 
           avoidLabelOverlap: false,
           itemStyle: {
             borderRadius: 4,
@@ -139,22 +163,19 @@ const initCharts = () => {
           data: data
         }
       ],
-      color: ['#3498db', '#2ecc71', '#f39c12'] // 成员A/B/C的颜色
+      color: ['#3498db', '#2ecc71', '#f39c12'] 
     };
 
     chart.setOption(option);
     
-    // 响应窗口大小变化
     window.addEventListener('resize', () => {
       chart.resize();
     });
   });
 };
 
-// 新增：监听视图变化，切换到步数视图时初始化图表
 watch(currentView, (newVal) => {
   if (newVal === 'steps') {
-    // 延迟初始化，确保DOM已渲染
     setTimeout(initCharts, 0);
   }
 });
@@ -489,7 +510,7 @@ onMounted(async () => {
 .icon-bar {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 4rem;
   padding: 0 1rem;
 }
 
@@ -536,7 +557,7 @@ onMounted(async () => {
 /* 新增：步数图表容器样式 */
 .charts-container {
   display: flex;
-  gap: 20px;
+  gap: 140px;
   padding: 15px 0;
   overflow-x: auto; /* 允许横向滚动 */
   width: 100%;
@@ -572,5 +593,88 @@ onMounted(async () => {
   font-size: 16px;
   color: #333;
   font-weight: 600;
+}
+
+/* 行程管理样式 */
+.schedule-container {
+  width: 100%;
+  max-width: 2000px;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.schedule-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.schedule-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.date {
+  flex: 0 0 120px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.location {
+  flex: 1;
+  color: #34495e;
+}
+
+.delete-btn {
+  flex: 0 0 30px;
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.schedule-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.schedule-form input {
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.schedule-form button {
+  padding: 0.6rem 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.schedule-form button:hover {
+  background: #2980b9;
 }
 </style>
