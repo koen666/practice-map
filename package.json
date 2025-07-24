@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "@vue-leaflet/vue-leaflet": "^0.10.1",
+    "@vueuse/core": "^13.5.0",
     "axios": "^1.10.0",
     "echarts": "^5.6.0",
     "leaflet": "^1.9.4",
     "vue": "^3.5.17",
     "vue-echarts": "^7.0.3",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",

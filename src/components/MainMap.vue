@@ -26,6 +26,15 @@
             <button @click="addSchedule">添加行程</button>
           </div>
         </div>
+
+        <div v-if="currentView === 'weather'" class="weather-container">
+          <iframe 
+            src="https://koen666.github.io/weather/" 
+            frameborder="0"
+            scrolling="no"
+            allowfullscreen
+          ></iframe>
+        </div>
       </div>
       <div class="icon-bar">
         <button @click="switchView('steps')" :class="{active: currentView === 'steps'}" aria-label="步数统计">
@@ -41,8 +50,10 @@
         <button @click="switchView('schedule')" :class="{active: currentView === 'schedule'}">
           <svg class="icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
         </button>
-        <button @click="switchView('documents')" :class="{active: currentView === 'documents'}">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        <button @click="switchView('weather')" :class="{active: currentView === 'weather'}">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13l2 0c0.55 0 1-0.45 1-1s-0.45-1-1-1l-2 0c-0.55 0-1 0.45-1 1S1.45 13 2 13zM20 13l2 0c0.55 0 1-0.45 1-1s-0.45-1-1-1l-2 0c-0.55 0-1 0.45-1 1S19.45 13 20 13zM11 2v2c0 0.55 0.45 1 1 1s1-0.45 1-1V2c0-0.55-0.45-1-1-1S11 1.45 11 2zM11 20v2c0 0.55 0.45 1 1 1s1-0.45 1-1v-2c0-0.55-0.45-1-1-1S11 19.45 11 20zM5.99 4.58c-0.39-0.39-1.03-0.39-1.41 0-0.39 0.39-0.39 1.03 0 1.41l1.06 1.06c0.39 0.39 1.03 0.39 1.41 0s0.39-1.03 0-1.41L5.99 4.58zM18.36 16.95c-0.39-0.39-1.03-0.39-1.41 0-0.39 0.39-0.39 1.03 0 1.41l1.06 1.06c0.39 0.39 1.03 0.39 1.41 0 0.39-0.39 0.39-1.03 0-1.41L18.36 16.95zM19.42 5.99c0.39-0.39 0.39-1.03 0-1.41-0.39-0.39-1.03-0.39-1.41 0l-1.06 1.06c-0.39 0.39-0.39 1.03 0 1.41s1.03 0.39 1.41 0L19.42 5.99zM7.05 18.36c0.39-0.39 0.39-1.03 0-1.41-0.39-0.39-1.03-0.39-1.41 0l-1.06 1.06c-0.39 0.39-0.39 1.03 0 1.41 0.39 0.39 1.03 0.39 1.41 0L7.05 18.36z"/>
+          </svg>
         </button>
       </div>
     </header>
@@ -66,7 +77,7 @@
 <script setup>
 import { computed, onMounted, ref ,watch} from 'vue';
 import * as echarts from 'echarts';
-const currentView = ref('steps');
+const currentView = ref('steps'); // 可选值: steps/schedule/weather
 const  isHeaderCollapsed = ref(false);
 const headerHeight = computed(() => isHeaderCollapsed.value ? '60px' : '35vh');
 
@@ -593,6 +604,21 @@ onMounted(async () => {
   font-size: 16px;
   color: #333;
   font-weight: 600;
+}
+
+/* 天气组件样式 */
+.weather-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  iframe {
+    width: 100%;
+    height: 700px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transform: scale(0.7) translateY(-250px);
+  }
 }
 
 /* 行程管理样式 */
